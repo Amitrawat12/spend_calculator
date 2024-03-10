@@ -8,6 +8,10 @@ def hello(name):
     
     return '<h2>Hello {} for first time </h2>'.format(name)
 
+@app.route('/login')
+def login():
+    return True
+
 @app.route('/query')
 def query():
     group_name = request.args.get('group_name')
@@ -27,12 +31,20 @@ def display_group():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     datas = cursor.execute('SELECT * from Group_Expense where Group_name = {}'.format(group_name))
-    data = datas.fetchall()[0]
-    s ={}
-    for i in range(len(data)):
-       s[i] = data[i]
-        
-    return jsonify(s)
+    data = datas.fetchall()
+    l = []
+    s = {}
+    for Group_name, User_name, Name, Type, Amount, Date_of_expense in data:
+        s={}
+        s['Group_name'] = Group_name
+        s['User_name'] = User_name
+        s['Name'] = Name
+        s['Type'] = Type
+        s['Amount'] = Amount
+        s['Date_of_expense'] = Date_of_expense
+        l.append(s)
+    output = {"result": l}
+    return jsonify(output)
 
 if __name__ == '__main__':
     app.run(debug = True)

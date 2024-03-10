@@ -8,6 +8,10 @@ def hello(name):
     
     return '<h2>Hello {} for first time </h2>'.format(name)
 
+@app.route('/login')
+def login():
+    return True
+
 @app.route('/query')
 def query():
     group_name = request.args.get('group_name')

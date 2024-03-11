@@ -21,7 +21,7 @@ def query():
     amount = request.args.get('amount')
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    d = cursor.execute('''INSERT INTO Group_Expense(Group_name, User_name, Name, Type, Amount, Date_of_expense) VALUES ({},{},{},{},{},datetime('now'));'''.format(group_name,user_name,name,type,amount))
+    cursor.execute('''INSERT INTO Group_Expense(Group_name, User_name, Name, Type, Amount, Date_of_expense) VALUES ({},{},{},{},{},datetime('now'));'''.format(group_name,user_name,name,type,amount))
     conn.commit() 
     return '<h1>done</h1>'
 
@@ -34,6 +34,8 @@ def display_group():
     data = datas.fetchall()
     l = []
     s = {}
+    total_exp = 0
+    output = {}
     for Group_name, User_name, Name, Type, Amount, Date_of_expense in data:
         s={}
         s['Group_name'] = Group_name
@@ -42,8 +44,15 @@ def display_group():
         s['Type'] = Type
         s['Amount'] = Amount
         s['Date_of_expense'] = Date_of_expense
+        if Type in output:
+            output[Type] = output[Type] + Amount
+        else:
+            output[Type] = Amount
         l.append(s)
-    output = {"result": l}
+        total_exp += Amount
+    output["result"] = l
+    output["Total_Expense"] = total_exp
+    
     return jsonify(output)
 
 if __name__ == '__main__':

@@ -12,6 +12,24 @@ def hello(name):
 def login():
     return True
 
+@app.route('/register')
+def register():
+    user_name = request.args.get('user_name')
+    pass1 = request.args.get('pass1')
+    pass2 = request.args.get('pass2')
+    number = request.args.get('number')
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    d = cursor.execute('''Select * from User_Register where Number = {};'''.format(number))
+    data = d.fetchall()
+    if len(data) != 0:
+        return "<h1>Number already exists</h1>"
+    
+    elif pass1 == pass2:
+        cursor.execute('''INSERT INTO User_Register(User_name, Password, Number) VALUES ({},{},{});'''.format(user_name,pass1,number))
+        conn.commit() 
+        return '<h1>Registration successful</h1>'
+
 @app.route('/query')
 def query():
     group_name = request.args.get('group_name')

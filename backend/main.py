@@ -18,15 +18,24 @@ def register():
     pass1 = request.args.get('pass1')
     pass2 = request.args.get('pass2')
     number = request.args.get('number')
+    email = request.args.get('email')
     conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    d = cursor.execute('''Select * from User_Register where Number = {};'''.format(number))
-    data = d.fetchall()
-    if len(data) != 0:
-        return "<h1>Number already exists</h1>"
     
+    cursor = conn.cursor()
+    d = cursor.execute('''Select Number, email from User_Register where Number = {} or email = "{}";'''.format(number, email))
+    data = d.fetchall()[0]
+    if len(data) != 0:
+        
+        if str(data[0]) == str(number) and str(data[1]) == str(email):
+            return "<h1>Number and Email already exists</h1>"
+        
+        elif str(data[0]) == str(number):
+            return "<h1>Number already exists</h1>"
+        
+        else: 
+            return "<h1>Email already exists</h1>"
     elif pass1 == pass2:
-        cursor.execute('''INSERT INTO User_Register(User_name, Password, Number) VALUES ({},{},{});'''.format(user_name,pass1,number))
+        cursor.execute('''INSERT INTO User_Register(User_name, Password, Number, email) VALUES ({},{},{},{});'''.format(user_name,pass1,number,email))
         conn.commit() 
         return '<h1>Registration successful</h1>'
 

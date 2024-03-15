@@ -10,7 +10,20 @@ def hello(name):
 
 @app.route('/login')
 def login():
-    return True
+    user_name = request.args.get('user_name')
+    pass1 = request.args.get('pass1')
+    
+    conn = sqlite3.connect('database.db')
+    
+    cursor = conn.cursor()
+    
+    d = cursor.execute('''Select * from User_Register where User_name = {} and Password = {};'''.format(user_name, pass1))
+    data = d
+    return data
+    if len(data) != 0:
+        return "Hello {} ".format(user_name)
+
+    return "Nahi hai yaar to register kar"
 
 @app.route('/register')
 def register():
@@ -19,6 +32,7 @@ def register():
     pass2 = request.args.get('pass2')
     number = request.args.get('number')
     email = request.args.get('email')
+    forget = request.args.get('forget')
     conn = sqlite3.connect('database.db')
     
     cursor = conn.cursor()
@@ -26,7 +40,10 @@ def register():
     data = d.fetchall()[0]
     if len(data) != 0:
         
-        if str(data[0]) == str(number) and str(data[1]) == str(email):
+        if forget == True:
+            return "Render to other url for changing password"
+            
+        elif str(data[0]) == str(number) and str(data[1]) == str(email):
             return "<h1>Number and Email already exists</h1>"
         
         elif str(data[0]) == str(number):
@@ -34,10 +51,17 @@ def register():
         
         else: 
             return "<h1>Email already exists</h1>"
+        
     elif pass1 == pass2:
         cursor.execute('''INSERT INTO User_Register(User_name, Password, Number, email) VALUES ({},{},{},{});'''.format(user_name,pass1,number,email))
         conn.commit() 
         return '<h1>Registration successful</h1>'
+
+@app.route('/forget_password')
+def forget_password():
+    
+    pass
+    
 
 @app.route('/query')
 def query():

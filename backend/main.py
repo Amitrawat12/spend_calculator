@@ -1,12 +1,18 @@
-from flask import Flask,request,jsonify,g,render_template
+from flask import Flask,request,jsonify,g,render_template,redirect, url_for, session
 import sqlite3
+from flask_session import Session
+
+
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 @app.route('/home', methods=['GET', 'POST'], defaults={'name':'gaurav'})
-@app.route('/home/<name>', methods=['GET', 'POST'])
+# @app.route('/home/<name>', methods=['GET', 'POST'])
 def hello(name):
     
-    return '<h2>Hello {} for first time </h2>'.format(name)
+    return '<h2>Hello {} for first time </h2>'.format(session["name"])
 
 @app.route('/login')
 def login():
@@ -17,10 +23,11 @@ def login():
     
     cursor = conn.cursor()
     
-    d = cursor.execute('''Select * from User_Register where User_name = {} and Password = {};'''.format(user_name, pass1))
-    data = d
-    return data
+    d = cursor.execute('''Select User_name from User_Register where User_name = {} and Password = {};'''.format(user_name, pass1))
+    data = d.fetchall()
+    print(len(data))
     if len(data) != 0:
+        session["name"] = user_name
         return "Hello {} ".format(user_name)
 
     return "Nahi hai yaar to register kar"
@@ -32,18 +39,16 @@ def register():
     pass2 = request.args.get('pass2')
     number = request.args.get('number')
     email = request.args.get('email')
-    forget = request.args.get('forget')
+    forget_password = request.args.get('forget_password')
     conn = sqlite3.connect('database.db')
-    
+    print(forget_password)
+    if str(forget_password) == "True":
+        return "sa"
     cursor = conn.cursor()
     d = cursor.execute('''Select Number, email from User_Register where Number = {} or email = "{}";'''.format(number, email))
     data = d.fetchall()[0]
     if len(data) != 0:
-        
-        if forget == True:
-            return "Render to other url for changing password"
-            
-        elif str(data[0]) == str(number) and str(data[1]) == str(email):
+        if str(data[0]) == str(number) and str(data[1]) == str(email):
             return "<h1>Number and Email already exists</h1>"
         
         elif str(data[0]) == str(number):
@@ -70,8 +75,10 @@ def query():
     name = request.args.get('name')
     type = request.args.get('type')
     amount = request.args.get('amount')
+    forget_password = request.args.get('forget_password')
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
+    
     cursor.execute('''INSERT INTO Group_Expense(Group_name, User_name, Name, Type, Amount, Date_of_expense) VALUES ({},{},{},{},{},datetime('now'));'''.format(group_name,user_name,name,type,amount))
     conn.commit() 
     return '<h1>done</h1>'

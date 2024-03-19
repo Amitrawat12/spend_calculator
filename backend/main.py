@@ -64,9 +64,26 @@ def register():
 
 @app.route('/forget_password')
 def forget_password():
+    u_tick = request.args.get('u_tick')
+    email = request.args.get('email')
+    pass1 = request.args.get('pass1')
+    pass2 = request.args.get('pass2')
+    number = request.args.get('number')
+    conn = sqlite3.connect('database.db')
     
-    pass
+    cursor = conn.cursor()
+    if pass1 == pass2:
+        if str(u_tick) == "True":
+            cursor.execute('''UPDATE User_Register User_Register SET Password = {} WHERE email = {};'''.format(pass1, email))
+            conn.commit() 
+        else:
+            cursor.execute('''UPDATE User_Register User_Register SET Password = {} WHERE Number = {};'''.format(pass1, number))
+            conn.commit()
+    else:
+        return 'HI'
     
+    return "Table_Updated"
+        
 
 @app.route('/query')
 def query():

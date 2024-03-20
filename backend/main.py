@@ -43,7 +43,7 @@ def register():
     conn = sqlite3.connect('database.db')
     print(forget_password)
     if str(forget_password) == "True":
-        return "sa"
+        return redirect("/sample")
     cursor = conn.cursor()
     d = cursor.execute('''Select Number, email from User_Register where Number = {} or email = "{}";'''.format(number, email))
     data = d.fetchall()[0]
@@ -62,6 +62,9 @@ def register():
         conn.commit() 
         return '<h1>Registration successful</h1>'
 
+@app.route('/sample')
+def method_name():
+    return "hi"
 @app.route('/forget_password')
 def forget_password():
     u_tick = request.args.get('u_tick')
@@ -74,10 +77,10 @@ def forget_password():
     cursor = conn.cursor()
     if pass1 == pass2:
         if str(u_tick) == "True":
-            cursor.execute('''UPDATE User_Register User_Register SET Password = {} WHERE email = {};'''.format(pass1, email))
+            cursor.execute('''UPDATE User_Register SET Password = {} WHERE email = {};'''.format(pass1, email))
             conn.commit() 
         else:
-            cursor.execute('''UPDATE User_Register User_Register SET Password = {} WHERE Number = {};'''.format(pass1, number))
+            cursor.execute('''UPDATE User_Register SET Password = {} WHERE Number = {};'''.format(pass1, number))
             conn.commit()
     else:
         return 'HI'
